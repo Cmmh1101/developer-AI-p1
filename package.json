@@ -1,0 +1,25 @@
+{
+  "name": "project-1",
+  "version": "1.0.0",
+  "description": "## Steps to start with Ollama  1. Install Ollama at:  https://ollama.com 2. Start Ollama in the terminal (mac) easy way to watch logs later on > ollama serve 3. Run Ollama (the first time takes longer) > ollama run llama3.2",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cmmh1101/developer-AI-p1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cmmh1101/developer-AI-p1/issues"
+  },
+  "homepage": "https://github.com/Cmmh1101/developer-AI-p1#readme",
+  "dependencies": {
+    "@langchain/ollama": "^0.2.4",
+    "express": "^5.1.0",
+    "langchain": "^0.3.35"
+  }
+}
