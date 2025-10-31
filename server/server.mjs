@@ -8,15 +8,21 @@ app.use(cors());
 app.use(express.json());
 
 const chatModel = new ChatOllama({
-model: 'llama3.2'
+  model: 'llama3.2'
 });
+
 app.post('/', async (request, response) => {
-const streamIterator = await chatModel.stream("Can you tell me about the " +
-"Beatles in 500 words or less?");
-for await (const chunk of streamIterator) {
-response.write(chunk.content);
-}
-response.end();
+  response.type('text/plain');
+
+  const body = request.body;
+
+  const streamIterator = await chatModel.stream(body.question);
+
+  for await (const chunk of streamIterator) {
+    response.write(chunk.content);
+  }
+
+  response.end();
 });
 
 app.listen(8000, () => {

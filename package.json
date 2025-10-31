@@ -4,7 +4,8 @@
   "description": "## Steps to start with Ollama  1. Install Ollama at:  https://ollama.com 2. Start Ollama in the terminal (mac) easy way to watch logs later on > ollama serve 3. Run Ollama (the first time takes longer) > ollama run llama3.2",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:server": "node server/server.mjs"
   },
   "repository": {
     "type": "git",
