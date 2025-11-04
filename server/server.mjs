@@ -1,30 +1,60 @@
 import express from "express";
+import cors from "cors";
 import { ChatOllama } from "@langchain/ollama";
-import cors from 'cors';
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { mentorPrompt } from "./prompts/mentorPrompt.js";
 
 const app = express();
-
-app.use(cors());
+app.use(cors({ origin: true }));
 app.use(express.json());
 
-const chatModel = new ChatOllama({
-  model: 'llama3.2'
-});
+const model = new ChatOllama({ model: "llama3.2" });
 
-app.post('/', async (request, response) => {
-  response.type('text/plain');
+// Non-streaming endpoint (simple)
+app.post("/chat", async (req, res) => {
+  try {
+    const { question } = req.body ?? {};
+    if (!question) return res.status(400).json({ error: "Missing 'question'" });
 
-  const body = request.body;
+    // Build chain: prompt -> model -> text
+    const chain = mentorPrompt.pipe(model).pipe(new StringOutputParser());
+    const answer = await chain.invoke({ question });
 
-  const streamIterator = await chatModel.stream(body.question);
-
-  for await (const chunk of streamIterator) {
-    response.write(chunk.content);
+    res.json({ answer });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "LLM error" });
   }
-
-  response.end();
 });
 
-app.listen(8000, () => {
-  console.log(`Server is running on port 8000`);
+// Optional: streaming endpoint
+app.post("/chat/stream", async (req, res) => {
+  try {
+    const { question } = req.body ?? {};
+    if (!question) return res.status(400).send("Missing 'question'");
+
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.flushHeaders?.();
+
+    // format messages from the prompt, then stream the model
+    const messages = await mentorPrompt.formatMessages({ question });
+    const stream = await model.stream(messages);
+
+    for await (const chunk of stream) {
+      const text = typeof chunk.content === "string"
+        ? chunk.content
+        : Array.isArray(chunk.content)
+        ? chunk.content.map(p => (typeof p === "string" ? p : p?.text ?? "")).join("")
+        : "";
+      res.write(text);
+    }
+    res.end();
+  } catch (e) {
+    console.error(e);
+    if (!res.headersSent) res.status(500).send("LLM error");
+    else res.end();
+  }
 });
+
+app.listen(8000, () => console.log("Server running on :8000"));

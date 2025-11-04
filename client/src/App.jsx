@@ -23,7 +23,7 @@ function App() {
   const fetchData = async () => {
     setLlmResponse('Please be patient, calling a local LLM can take some time.  While you wait check the server logs...');
 
-    const url = 'http://localhost:8000';
+    const url = 'http://localhost:8000/chat';
 
     const response = await fetch(url, {
       method: 'POST',
